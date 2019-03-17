@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!--配置扫描范围-->
+    <context:component-scan base-package="com.java06" />
+    <!--开启扫描-->
+    <mvc:annotation-driven />
+
+    <!--配置数据库连接信息-->
+
+    <!--引入数据库配置信息-->
+    <context:property-placeholder location="classpath:db.properties" />
+    <!--配置数据源（druid）-->
+    <!--init-method="init":项目启动时，自动加载这个组件-->
+    <!--destroy-method="close":项目关闭时，自动关闭这个组件-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="initialSize" value="1"/><!--初始化时建立的连接个数-->
+        <property name="minIdle" value="1"/><!--最小连接池数-->
+        <property name="maxActive" value="20"/><!--最大连接池数-->
+        <property name="maxWait" value="60000"/><!--获取连接的等待时间，单位：ms-->
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/><!--检测连接的时间间隔-->
+        <property name="minEvictableIdleTimeMillis" value="300000"/><!--保持空闲而不被销毁的最长时间-->
+        <property name="validationQuery" value="SELECT 'x'"/><!--检测连接是否有效的sql，必须为查询语句-->
+        <property name="testWhileIdle" value="true"/><!--如果空闲时间大于检测间隔，执行检验，默认false，建议设置为true-->
+        <property name="testOnBorrow" value="false"/><!--申请连接时检测连接是否有效，默认为true，影响性能，建议false-->
+        <property name="testOnReturn" value="false"/><!--归还连接时检测连接是否有效，默认为true，影响性能，建议false-->
+        <property name="poolPreparedStatements" value="false"/><!--是否缓存preparedStatement，mysql数据库建议关闭-->
+    </bean>
+
+    <!--配置mybatis的SqlSessionFactory工厂组件-->
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/><!--注入数据源-->
+        <property name="typeAliasesPackage" value="com.java06.pojo" /><!--配置pojo包内所有实体类的别名-->
+        <!--配置分页插件-->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageHelper">
+                    <property name="properties">
+                        <value>dialect=mysql</value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+    <!--mapper.xml转换接口实现类-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.java06.mapper"/>
+        <!--下面代码一定记住使用value来配置，而不是ref-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"/>
+     </bean>
+    <!--配置事务管理器-->
+    <!--事务规则：查询语句为只读模式，添加修改和删除时，有异常则自动回滚，否则自动提交-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--开启事务注解功能-->
+    <tx:annotation-driven transaction-manager="txManager"/>
+
+    <!--解决Ajax请求返回json时会出现http406错误或直接下载json文件的问题-->
+    <mvc:annotation-driven >
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+            <bean id="fastJsonHttpMessageConverter"	class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!--这里的配置自动给控制器的return的地址拼上前后缀-->
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--静态资源-->
+    <mvc:resources mapping="/static/**" location="/static/"/>
+
+
+    <!-- 配置附件解析器，解决附件上传问题 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 附件的最大，单位是字节 -->
+        <property name="maxUploadSize" value="1024000000"/>
+    </bean>
+</beans>
+

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java06.mapper.DetailsMapper" >
+  <resultMap id="BaseResultMap" type="com.java06.pojo.Details" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="gid" property="gid" jdbcType="INTEGER" />
+    <result column="gcount" property="gcount" jdbcType="INTEGER" />
+    <result column="oid" property="oid" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.java06.pojo.Details" extends="BaseResultMap" >
+    <result column="remake" property="remake" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, gid, gcount, oid
+  </sql>
+  <sql id="Blob_Column_List" >
+    remake
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from details
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from details
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.java06.pojo.Details" >
+    insert into details (id, gid, gcount, 
+      oid, remake)
+    values (#{id,jdbcType=INTEGER}, #{gid,jdbcType=INTEGER}, #{gcount,jdbcType=INTEGER}, 
+      #{oid,jdbcType=INTEGER}, #{remake,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.java06.pojo.Details" >
+    insert into details
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="gid != null" >
+        gid,
+      </if>
+      <if test="gcount != null" >
+        gcount,
+      </if>
+      <if test="oid != null" >
+        oid,
+      </if>
+      <if test="remake != null" >
+        remake,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="gid != null" >
+        #{gid,jdbcType=INTEGER},
+      </if>
+      <if test="gcount != null" >
+        #{gcount,jdbcType=INTEGER},
+      </if>
+      <if test="oid != null" >
+        #{oid,jdbcType=INTEGER},
+      </if>
+      <if test="remake != null" >
+        #{remake,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.java06.pojo.Details" >
+    update details
+    <set >
+      <if test="gid != null" >
+        gid = #{gid,jdbcType=INTEGER},
+      </if>
+      <if test="gcount != null" >
+        gcount = #{gcount,jdbcType=INTEGER},
+      </if>
+      <if test="oid != null" >
+        oid = #{oid,jdbcType=INTEGER},
+      </if>
+      <if test="remake != null" >
+        remake = #{remake,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.java06.pojo.Details" >
+    update details
+    set gid = #{gid,jdbcType=INTEGER},
+      gcount = #{gcount,jdbcType=INTEGER},
+      oid = #{oid,jdbcType=INTEGER},
+      remake = #{remake,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.java06.pojo.Details" >
+    update details
+    set gid = #{gid,jdbcType=INTEGER},
+      gcount = #{gcount,jdbcType=INTEGER},
+      oid = #{oid,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+    <insert id="betchInsert" parameterType="java.util.List">
+        insert into details(gid,gcount,oid) values
+        <foreach collection="list" separator="," item="d">
+            (#{d.gid},#{d.gcount},#{d.oid})
+        </foreach>
+    </insert>
+
+    <select id="getAll" parameterType="Details" resultType="Details">
+        select d.*,g.gname,g.gprice from details d,goods g where d.gid=g.id and d.oid=#{id} order by d.id desc
+    </select>
+</mapper>
