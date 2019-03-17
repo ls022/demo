@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="C:/Users/oracleOAEC/Documents/Tencent Files/2867591417/FileRecv/ojdbc14.jar"/>
+	<classpathentry kind="lib" path="C:/Users/oracleOAEC/Documents/Tencent Files/2867591417/FileRecv/FastJson_jb51/fastjson-1.2.7.jar"/>
+	<classpathentry kind="lib" path="C:/Users/oracleOAEC/Documents/Tencent Files/2867591417/FileRecv/commons-io-2.0.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
